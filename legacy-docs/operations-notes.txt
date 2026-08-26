@@ -1,0 +1,25 @@
+WHOLESALE ORDER SUPPORT NOTES
+Last revised: 2021-06-17
+
+1. EDI orders normally arrive overnight. Large partners sometimes send multiple
+   batches during holiday periods.
+
+2. If an order is missing, search by customer PO first. Do not ask the partner
+   for the internal order number.
+
+3. BookMart is special. Do not release a BookMart order manually because the
+   account has its own agreement. Ask Sales Ops if there is a pricing question.
+
+4. "BO" usually means backorder. Rush orders should not sit in BO status.
+
+5. The OLDPO report prints after nightly processing. Finance used to collect it
+   from the printer. Unsure whether anybody still uses it.
+
+6. If an ISBN fails, verify what the partner actually sent before changing the
+   title master.
+
+7. READMORE prices have occasionally been strange. Customer Service normally
+   checks the PO and calls Sales Ops.
+
+8. EDI acknowledgments are expected by partners. There was once a spreadsheet
+   of partner-specific acknowledgment rules; location unknown.

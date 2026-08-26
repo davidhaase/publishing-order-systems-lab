@@ -1,0 +1,18 @@
+EDI 850 -> NORMALIZED ORDER MAP (partial)
+Document date unknown.
+
+BEG03      -> PO-NUMBER
+BEG05      -> ORDER-DATE
+N1/ST N104 -> SHIP-TO
+PO107/08   -> ISBN
+PO102      -> QUANTITY
+PO104      -> UNIT-PRICE
+Partner ID -> CUSTOMER-ID (cross-reference table)
+
+ORDER-SOURCE = E for EDI
+
+DISCOUNT-PCT: customer default unless contract override exists.
+RUSH-FLAG: partner dependent. See partner profile.
+
+NOTE: line numbers were added to SQL system later and are not present in the
+original normalized flat-file record.

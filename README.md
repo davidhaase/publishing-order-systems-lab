@@ -12,5 +12,9 @@ You have joined a publisher that is preparing to replace a long-running order-pr
 - `batch/` — batch-control artifact
 - `legacy-docs/` — surviving operational notes
 - `assignment/` — analyst brief
+- `docs/` - analyst-produced product, migration, and implementation documentation
+  - `product/` — product-level documentation
+  - `projects/` — migration projects and development history
+  - `specs/` — implementation specifications and technical details
 
 Do not assume every artifact is current or every comment is correct.

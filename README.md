@@ -13,7 +13,7 @@ You have joined a publisher that is preparing to replace a long-running order-pr
 - `legacy-docs/` — surviving operational notes
 - `assignment/` — analyst brief
 - `docs/` - analyst-produced product, migration, and implementation documentation
-  - `product/` — product-level documentation
+  - `products/` — product-level documentation
   - `projects/` — migration projects and development history
   - `specs/` — implementation specifications and technical details
 

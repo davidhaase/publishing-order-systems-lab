@@ -3,6 +3,7 @@ from pathlib import Path
 from typing import Any
 
 from change_analyst.schema import ChangeRequest
+from change_analyst.response import AgentResponse
 
 
 PROMPT_PATH = Path(__file__).parent / "prompts" / "system.md"
@@ -41,6 +42,46 @@ class ChangeAnalystAgent:
             "change_request": self.get_change_request_state(),
             "unresolved_required_fields": self.get_unresolved_required_fields(),
         }
+
+    def apply_response(self, response: AgentResponse) -> None:
+        for update in response.field_updates:
+            if hasattr(self.change_request, update.field_name):
+                requirement = getattr(
+                    self.change_request,
+                    update.field_name,
+                )
+
+                requirement.state = update.state
+                requirement.value = update.value
+
+        self.change_request.business_rules.extend(
+            response.business_rules
+        )
+
+        self.change_request.exceptions.extend(
+            response.exceptions
+        )
+
+        self.change_request.affected_systems.extend(
+            response.affected_systems
+        )
+
+        self.change_request.acceptance_criteria.extend(
+            response.acceptance_criteria
+        )
+
+        self.change_request.assumptions.extend(
+            response.assumptions
+        )
+
+        self.change_request.open_questions.extend(
+            response.open_questions
+        )
+
+        self.add_message(
+            "analyst",
+            response.message,
+        )
 
 
 if __name__ == "__main__":

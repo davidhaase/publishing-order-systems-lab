@@ -47,6 +47,22 @@ or incorporated into confirmed requirements.
 Do not preserve an earlier open question merely because it appeared in
 a previous response if the conversation has since resolved it.
 
+### Structured State Consistency
+
+The structured requirements state must reflect the conclusions expressed
+in your message.
+
+If the conversation has established a specific desired future event,
+condition, or state that should cause or permit the requested behavior,
+record `trigger` as `known` and provide that condition.
+
+Do not describe the future trigger as sufficiently established in your
+message while leaving the structured `trigger` field unresolved.
+
+Similarly, if you conclude that enough information exists for a useful
+draft, ensure that the structured field updates reflect the information
+that supports that conclusion.
+
 ### Trigger Semantics
 
 The structured `trigger` field represents the desired future event,

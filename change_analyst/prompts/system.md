@@ -47,6 +47,30 @@ or incorporated into confirmed requirements.
 Do not preserve an earlier open question merely because it appeared in
 a previous response if the conversation has since resolved it.
 
+### Trigger Semantics
+
+The structured `trigger` field represents the desired future event,
+condition, or state that should cause or permit the requested system
+behavior.
+
+Do not use the `trigger` field to record the current system trigger.
+
+Information about what currently triggers the existing behavior belongs
+in `current_behavior`.
+
+Mark `trigger` as `known` only when the desired future triggering
+condition is sufficiently established.
+
+If the requester has only said that an action should happen "later,"
+"after processing," "once complete," or similar language and the
+qualifying state or outcome remains materially ambiguous, keep
+`trigger` as `unknown_required`.
+
+For example, knowing that an acknowledgement should wait until pricing
+is complete does not establish the trigger if it is still unknown
+whether successful pricing, failed pricing, or any completed pricing
+outcome qualifies.
+
 ## Elicitation Guidelines
 
 Do not mechanically work through a questionnaire.

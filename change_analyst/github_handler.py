@@ -16,11 +16,60 @@ def get_issue_number(event: dict) -> int:
     return event["issue"]["number"]
 
 
-def get_user_message(event: dict) -> str:
-    if "comment" in event:
-        return event["comment"]["body"]
+def get_issue_comments(
+    repository: str,
+    issue_number: int,
+) -> list[dict]:
+    token = os.environ["GITHUB_TOKEN"]
 
-    return event["issue"]["body"] or ""
+    url = (
+        f"https://api.github.com/repos/"
+        f"{repository}/issues/{issue_number}/comments"
+    )
+
+    request = urllib.request.Request(
+        url,
+        method="GET",
+        headers={
+            "Authorization": f"Bearer {token}",
+            "Accept": "application/vnd.github+json",
+        },
+    )
+
+    with urllib.request.urlopen(request) as response:
+        return json.load(response)
+
+
+def build_conversation(
+    event: dict,
+    comments: list[dict],
+) -> list[dict[str, str]]:
+    conversation = []
+
+    issue_body = event["issue"]["body"] or ""
+
+    if issue_body:
+        conversation.append(
+            {
+                "role": "requester",
+                "content": issue_body,
+            }
+        )
+
+    for comment in comments:
+        if comment["user"]["type"] == "Bot":
+            role = "analyst"
+        else:
+            role = "requester"
+
+        conversation.append(
+            {
+                "role": role,
+                "content": comment["body"],
+            }
+        )
+
+    return conversation
 
 
 def post_issue_comment(
@@ -57,16 +106,31 @@ def post_issue_comment(
 def main() -> None:
     event = load_event()
 
+    repository = os.environ["GITHUB_REPOSITORY"]
     issue_number = get_issue_number(event)
-    user_message = get_user_message(event)
+
+    comments = get_issue_comments(
+        repository,
+        issue_number,
+    )
+
+    conversation = build_conversation(
+        event,
+        comments,
+    )
 
     agent = ChangeAnalystAgent()
-    agent.add_message("requester", user_message)
+
+    for message in conversation:
+        agent.add_message(
+            message["role"],
+            message["content"],
+        )
 
     response = agent.analyze()
 
     post_issue_comment(
-        repository=os.environ["GITHUB_REPOSITORY"],
+        repository=repository,
         issue_number=issue_number,
         body=response.message,
     )

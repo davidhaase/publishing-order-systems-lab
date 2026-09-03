@@ -131,6 +131,20 @@ def main() -> None:
     response = agent.analyze()
     agent.apply_response(response)
 
+    print("\nAGENT RESPONSE")
+    print(response.model_dump_json(indent=2))
+
+    print("\nCHANGE REQUEST STATE")
+    print(
+        json.dumps(
+            agent.get_change_request_state(),
+            indent=2,
+        )
+    )
+    
+    print("\nREADY FOR DRAFT")
+    print(agent.is_ready_for_draft())
+
     if agent.is_ready_for_draft():
         spec = render_change_spec(
             agent.change_request,

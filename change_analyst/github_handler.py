@@ -128,13 +128,24 @@ def main() -> None:
         )
 
     response = agent.analyze()
+    agent.apply_response(response)
+
+    if agent.is_ready_for_draft():
+        message = (
+            "I have enough information to prepare a useful draft change "
+            "specification. The successful pricing path is defined. "
+            "Handling for failed, held, or indefinitely pending pricing "
+            "remains an unresolved Operations decision and will be preserved "
+            "as an open question."
+        )
+    else:
+        message = response.message
 
     post_issue_comment(
         repository=repository,
         issue_number=issue_number,
-        body=response.message,
+        body=message,
     )
-
 
 if __name__ == "__main__":
     main()

@@ -195,6 +195,7 @@ def create_pull_request(
             "head": head,
             "base": base,
             "body": body,
+            "draft": True,
         },
     )
 

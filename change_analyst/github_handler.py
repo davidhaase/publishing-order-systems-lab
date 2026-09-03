@@ -1,5 +1,7 @@
+import base64
 import json
 import os
+import re
 import urllib.request
 
 from change_analyst.agent import ChangeAnalystAgent
@@ -17,28 +19,44 @@ def get_issue_number(event: dict) -> int:
     return event["issue"]["number"]
 
 
-def get_issue_comments(
-    repository: str,
-    issue_number: int,
-) -> list[dict]:
+def github_request(
+    url: str,
+    method: str = "GET",
+    payload: dict | None = None,
+) -> dict:
     token = os.environ["GITHUB_TOKEN"]
 
-    url = (
-        f"https://api.github.com/repos/"
-        f"{repository}/issues/{issue_number}/comments"
-    )
+    data = None
+
+    if payload is not None:
+        data = json.dumps(payload).encode("utf-8")
 
     request = urllib.request.Request(
         url,
-        method="GET",
+        data=data,
+        method=method,
         headers={
             "Authorization": f"Bearer {token}",
             "Accept": "application/vnd.github+json",
+            "Content-Type": "application/json",
+            "X-GitHub-Api-Version": "2022-11-28",
         },
     )
 
     with urllib.request.urlopen(request) as response:
         return json.load(response)
+
+
+def get_issue_comments(
+    repository: str,
+    issue_number: int,
+) -> list[dict]:
+    url = (
+        f"https://api.github.com/repos/"
+        f"{repository}/issues/{issue_number}/comments"
+    )
+
+    return github_request(url)
 
 
 def build_conversation(
@@ -78,30 +96,166 @@ def post_issue_comment(
     issue_number: int,
     body: str,
 ) -> None:
-    token = os.environ["GITHUB_TOKEN"]
-
     url = (
         f"https://api.github.com/repos/"
         f"{repository}/issues/{issue_number}/comments"
     )
 
-    payload = json.dumps(
-        {"body": body}
-    ).encode("utf-8")
-
-    request = urllib.request.Request(
-        url,
-        data=payload,
+    github_request(
+        url=url,
         method="POST",
-        headers={
-            "Authorization": f"Bearer {token}",
-            "Accept": "application/vnd.github+json",
-            "Content-Type": "application/json",
+        payload={"body": body},
+    )
+
+
+def slugify(text: str) -> str:
+    text = text.lower()
+    text = re.sub(r"[^a-z0-9]+", "-", text)
+    return text.strip("-")
+
+
+def get_branch_sha(
+    repository: str,
+    branch: str,
+) -> str:
+    url = (
+        f"https://api.github.com/repos/"
+        f"{repository}/git/ref/heads/{branch}"
+    )
+
+    response = github_request(url)
+
+    return response["object"]["sha"]
+
+
+def create_branch(
+    repository: str,
+    branch_name: str,
+    source_sha: str,
+) -> None:
+    url = (
+        f"https://api.github.com/repos/"
+        f"{repository}/git/refs"
+    )
+
+    github_request(
+        url=url,
+        method="POST",
+        payload={
+            "ref": f"refs/heads/{branch_name}",
+            "sha": source_sha,
         },
     )
 
-    with urllib.request.urlopen(request) as response:
-        response.read()
+
+def create_file(
+    repository: str,
+    path: str,
+    branch: str,
+    content: str,
+    commit_message: str,
+) -> None:
+    url = (
+        f"https://api.github.com/repos/"
+        f"{repository}/contents/{path}"
+    )
+
+    encoded_content = base64.b64encode(
+        content.encode("utf-8")
+    ).decode("utf-8")
+
+    github_request(
+        url=url,
+        method="PUT",
+        payload={
+            "message": commit_message,
+            "content": encoded_content,
+            "branch": branch,
+        },
+    )
+
+
+def create_pull_request(
+    repository: str,
+    title: str,
+    head: str,
+    base: str,
+    body: str,
+) -> dict:
+    url = (
+        f"https://api.github.com/repos/"
+        f"{repository}/pulls"
+    )
+
+    return github_request(
+        url=url,
+        method="POST",
+        payload={
+            "title": title,
+            "head": head,
+            "base": base,
+            "body": body,
+        },
+    )
+
+
+def create_spec_pull_request(
+    event: dict,
+    repository: str,
+    issue_number: int,
+    spec: str,
+) -> dict:
+    issue_title = event["issue"]["title"]
+    default_branch = event["repository"]["default_branch"]
+
+    slug = slugify(issue_title)
+
+    branch_name = (
+        f"change-analyst/issue-{issue_number}-{slug}"
+    )
+
+    file_path = (
+        f"docs/change-requests/"
+        f"{issue_number}-{slug}.md"
+    )
+
+    source_sha = get_branch_sha(
+        repository,
+        default_branch,
+    )
+
+    create_branch(
+        repository,
+        branch_name,
+        source_sha,
+    )
+
+    create_file(
+        repository=repository,
+        path=file_path,
+        branch=branch_name,
+        content=spec,
+        commit_message=(
+            f"Add draft change specification for issue #{issue_number}"
+        ),
+    )
+
+    pull_request = create_pull_request(
+        repository=repository,
+        title=f"Draft change specification: {issue_title}",
+        head=branch_name,
+        base=default_branch,
+        body=(
+            "## Change Analyst Draft\n\n"
+            f"Generated from the requirements elicitation in #{issue_number}.\n\n"
+            "This specification is a draft for human review. "
+            "Assumptions and unresolved questions remain explicitly "
+            "identified in the document.\n\n"
+            f"Closes #{issue_number}"
+        ),
+    )
+
+    return pull_request
 
 
 def main() -> None:
@@ -141,7 +295,7 @@ def main() -> None:
             indent=2,
         )
     )
-    
+
     print("\nREADY FOR DRAFT")
     print(agent.is_ready_for_draft())
 
@@ -151,12 +305,22 @@ def main() -> None:
             title=event["issue"]["title"],
         )
 
-        message = (
-            "I have enough information to prepare a useful draft change "
-            "specification.\n\n"
-            "Here is the generated draft:\n\n"
-            f"{spec}"
+        pull_request = create_spec_pull_request(
+            event=event,
+            repository=repository,
+            issue_number=issue_number,
+            spec=spec,
         )
+
+        message = (
+            "I have enough information to prepare a useful draft "
+            "change specification.\n\n"
+            f"Draft specification created for human review: "
+            f"{pull_request['html_url']}\n\n"
+            "Unresolved assumptions and open questions have been "
+            "preserved in the specification."
+        )
+
     else:
         message = response.message
 
@@ -165,6 +329,7 @@ def main() -> None:
         issue_number=issue_number,
         body=message,
     )
+
 
 if __name__ == "__main__":
     main()

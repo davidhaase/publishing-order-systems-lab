@@ -3,6 +3,7 @@ import os
 import urllib.request
 
 from change_analyst.agent import ChangeAnalystAgent
+from change_analyst.spec import render_change_spec
 
 
 def load_event() -> dict:
@@ -131,12 +132,16 @@ def main() -> None:
     agent.apply_response(response)
 
     if agent.is_ready_for_draft():
+        spec = render_change_spec(
+            agent.change_request,
+            title=event["issue"]["title"],
+        )
+
         message = (
             "I have enough information to prepare a useful draft change "
-            "specification. The successful pricing path is defined. "
-            "Handling for failed, held, or indefinitely pending pricing "
-            "remains an unresolved Operations decision and will be preserved "
-            "as an open question."
+            "specification.\n\n"
+            "Here is the generated draft:\n\n"
+            f"{spec}"
         )
     else:
         message = response.message

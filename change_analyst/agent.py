@@ -5,6 +5,8 @@ from typing import Any
 from change_analyst.schema import ChangeRequest
 from change_analyst.response import AgentResponse
 
+from openai import OpenAI
+
 
 PROMPT_PATH = Path(__file__).parent / "prompts" / "system.md"
 
@@ -14,6 +16,7 @@ class ChangeAnalystAgent:
         self.system_prompt = self._load_system_prompt()
         self.change_request = ChangeRequest()
         self.conversation: list[dict[str, str]] = []
+        self.client = OpenAI()
 
     def _load_system_prompt(self) -> str:
         return PROMPT_PATH.read_text(encoding="utf-8")
@@ -83,6 +86,17 @@ class ChangeAnalystAgent:
             response.message,
         )
 
+    def analyze(self) -> str:
+        context = self.build_context()
+
+        response = self.client.responses.create(
+            model="gpt-5.6-terra",
+            instructions=self.system_prompt,
+            input=str(context),
+        )
+
+        return response.output_text
+
 
 if __name__ == "__main__":
     agent = ChangeAnalystAgent()
@@ -93,4 +107,4 @@ if __name__ == "__main__":
         "because sometimes pricing hasn't finished yet.",
     )
 
-    print(agent.build_context())
+    print(agent.analyze())

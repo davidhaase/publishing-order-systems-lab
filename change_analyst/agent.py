@@ -7,7 +7,6 @@ from change_analyst.response import AgentResponse
 
 from openai import OpenAI
 
-
 PROMPT_PATH = Path(__file__).parent / "prompts" / "system.md"
 
 
@@ -43,7 +42,6 @@ class ChangeAnalystAgent:
             "system_prompt": self.system_prompt,
             "conversation": self.get_conversation(),
             "change_request": self.get_change_request_state(),
-            "unresolved_required_fields": self.get_unresolved_required_fields(),
         }
 
     def apply_response(self, response: AgentResponse) -> None:
@@ -51,7 +49,7 @@ class ChangeAnalystAgent:
             if hasattr(self.change_request, update.field_name):
                 requirement = getattr(
                     self.change_request,
-                    update.field_name,
+                    update.field_name.value,
                 )
 
                 requirement.state = update.state
@@ -86,16 +84,17 @@ class ChangeAnalystAgent:
             response.message,
         )
 
-    def analyze(self) -> str:
+    def analyze(self) -> AgentResponse:
         context = self.build_context()
 
-        response = self.client.responses.create(
+        response = self.client.responses.parse(
             model="gpt-5.6-terra",
             instructions=self.system_prompt,
             input=str(context),
+            text_format=AgentResponse,
         )
 
-        return response.output_text
+        return response.output_parsed
 
 
 if __name__ == "__main__":
@@ -107,4 +106,33 @@ if __name__ == "__main__":
         "because sometimes pricing hasn't finished yet.",
     )
 
-    print(agent.analyze())
+    first_response = agent.analyze()
+    agent.apply_response(first_response)
+
+    print("FIRST RESPONSE")
+    print(first_response.model_dump_json(indent=2))
+
+    agent.add_message(
+        "requester",
+        "It happens with EDI orders. We send the 855 too early. "
+        "I think it gets created right after the 850 is accepted. "
+        "It should wait until we've actually priced the order.",
+    )
+
+    second_response = agent.analyze()
+
+    agent.apply_response(second_response)
+
+    print("\nSECOND RESPONSE")
+    print(second_response.model_dump_json(indent=2))
+
+    agent.add_message(
+        "requester",
+        "That's a good question. I don't know. Operations needs to decide that. "
+        "But if pricing succeeds, yes, send the 855 once we have the final price.",
+    )
+
+    third_response = agent.analyze()
+
+    print("\nTHIRD RESPONSE")
+    print(third_response.model_dump_json(indent=2))

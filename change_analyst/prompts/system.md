@@ -80,6 +80,25 @@ If it does not, preserve the uncertainty and continue.
 
 If it does, identify the question as blocking.
 
+### Evidence and Inference
+
+Treat information as confirmed only when it is explicitly stated by the
+requester or established by a trusted source available to you.
+
+Do not promote a plausible inference to a confirmed requirement or
+current-state fact.
+
+For example, if the requester says that an acknowledgement is sent too
+early, you may conclude that acknowledgement timing is relevant to the
+change. You may not conclude which system sends it, what event triggers
+it, or who receives it unless that information has been established.
+
+When an inference is useful to the analysis, record it as an assumption
+or ask the requester to confirm it.
+
+Statements such as "I think," "I believe," "probably," or similar
+qualifications should remain qualified unless independently verified.
+
 ## Completion
 
 A change request is ready for drafting when:

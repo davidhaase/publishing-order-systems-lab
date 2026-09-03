@@ -53,6 +53,7 @@ class ChangeRequest:
             self.business_objective,
             self.current_behavior,
             self.desired_behavior,
+            self.trigger,
         ]
 
         return all(

@@ -47,3 +47,15 @@ class ChangeRequest:
                 unresolved.append(name)
 
         return unresolved
+
+    def is_ready_for_draft(self) -> bool:
+        required_fields = [
+            self.business_objective,
+            self.current_behavior,
+            self.desired_behavior,
+        ]
+
+        return all(
+            requirement.state == KnowledgeState.KNOWN
+            for requirement in required_fields
+        )

@@ -3,7 +3,8 @@ from pathlib import Path
 from typing import Any
 
 from change_analyst.schema import ChangeRequest
-from change_analyst.response import AgentResponse
+from change_analyst.response import AgentDecision, AgentResponse
+from change_analyst.spec import render_change_spec
 
 from openai import OpenAI
 
@@ -55,28 +56,32 @@ class ChangeAnalystAgent:
                 requirement.state = update.state
                 requirement.value = update.value
 
-        self.change_request.business_rules.extend(
-            response.business_rules
+        self.change_request.business_rules = (
+            response.business_rules.copy()
         )
 
-        self.change_request.exceptions.extend(
-            response.exceptions
+        self.change_request.exceptions = (
+            response.exceptions.copy()
         )
 
-        self.change_request.affected_systems.extend(
-            response.affected_systems
+        self.change_request.affected_systems = (
+            response.affected_systems.copy()
         )
 
-        self.change_request.acceptance_criteria.extend(
-            response.acceptance_criteria
+        self.change_request.acceptance_criteria = (
+            response.acceptance_criteria.copy()
         )
 
-        self.change_request.assumptions.extend(
-            response.assumptions
+        self.change_request.assumptions = (
+            response.assumptions.copy()
         )
 
         self.change_request.open_questions.extend(
             response.open_questions
+        )
+
+        self.change_request.open_questions = (
+            response.open_questions.copy()
         )
 
         self.add_message(
@@ -95,6 +100,9 @@ class ChangeAnalystAgent:
         )
 
         return response.output_parsed
+
+    def is_ready_for_draft(self) -> bool:
+        return self.change_request.is_ready_for_draft()
 
 
 if __name__ == "__main__":
@@ -133,6 +141,18 @@ if __name__ == "__main__":
     )
 
     third_response = agent.analyze()
+    agent.apply_response(third_response)
 
     print("\nTHIRD RESPONSE")
     print(third_response.model_dump_json(indent=2))
+
+    if agent.is_ready_for_draft():
+        spec = render_change_spec(
+            agent.change_request,
+            title="Delay EDI 855 Until Pricing Completes",
+        )
+
+        print("\nGENERATED CHANGE SPEC")
+        print(spec)
+
+    

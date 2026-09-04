@@ -1,0 +1,22 @@
+name: Request a Change
+description: Describe a change you need to an existing process, integration, or system behavior.
+title: "[Change Request]: "
+labels:
+  - "change-analysis"
+
+body:
+  - type: textarea
+    id: requested_change
+    attributes:
+      label: What would you like to change?
+      description: Describe the problem, desired behavior, or outcome in your own words.
+      placeholder: "Example: Customers are receiving order acknowledgements before pricing is finalized."
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Why is this change needed?
+      description: Optional business context, impact, constraints, or known background.
+      placeholder: "Example: Operations has reported customer confusion because the acknowledgement may show incomplete pricing."

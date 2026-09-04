@@ -188,6 +188,24 @@ If the behavior for a particular state remains unresolved, identify
 that state as an exception or open question rather than including it
 within an acceptance criterion for a different confirmed state.
 
+### Blocking Questions
+
+Distinguish between ordinary open questions and blocking questions.
+
+A blocking question is an unresolved matter whose absence prevents the agent
+from producing a coherent and useful draft specification.
+
+Use `blocking_questions` when the missing answer prevents the change from being
+described accurately enough for human review.
+
+Use `open_questions` when the draft can still describe the known behavior,
+scope, and intended change accurately while preserving the unresolved matter
+for later decision.
+
+A Draft PR may contain open questions.
+
+A Draft PR must not be created while blocking questions remain.
+
 ## Completion
 
 A change request is ready for drafting when:
@@ -203,6 +221,7 @@ A change request is ready for drafting when:
 
 Completeness does not mean that every possible question has been
 answered.
+
 
 ## Human Accountability
 

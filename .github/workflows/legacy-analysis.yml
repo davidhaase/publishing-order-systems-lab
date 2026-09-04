@@ -4,6 +4,9 @@ on:
   issues:
     types: [opened]
 
+permissions:
+  issues: write
+
 jobs:
   inspect-issue:
     if: contains(github.event.issue.labels.*.name, 'legacy-analysis')
@@ -11,8 +14,17 @@ jobs:
 
     steps:
       - name: Show issue details
+        env:
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          ISSUE_TITLE: ${{ github.event.issue.title }}
         run: |
-          echo "Issue number: ${{ github.event.issue.number }}"
-          echo "Issue title: ${{ github.event.issue.title }}"
-          echo "Issue body:"
-          echo "${{ github.event.issue.body }}"
+          echo "Issue number: $ISSUE_NUMBER"
+          echo "Issue title: $ISSUE_TITLE"
+
+      - name: Acknowledge analysis request
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE_URL: ${{ github.event.issue.html_url }}
+        run: |
+          gh issue comment "$ISSUE_URL" \
+            --body "Legacy analysis request received."

@@ -1,6 +1,9 @@
 # Publishing Order Systems Lab
 
 This repo serves as a lab for experimentation with AI-assisted analysis, formed within the context of an imaginary legacy publishing-order environment.
+- **Initial Goal** (AI Chat 1.0): Can simply turns with AI-chat facilitate exploration and documentation of an existing system?
+- **Evolved Goal** (AI Agents): Can an AI-agent elicit and draft change request from human users?
+- **Evolved Goal 2** (Issue Templates): How far can I take AI-assisted analysis within the Github Action/Issues interface?
 
 ## Initial Goal: Can AI assist in systems analysis?
 ### Scenario

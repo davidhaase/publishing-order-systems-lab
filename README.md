@@ -1,9 +1,9 @@
 # Publishing Order Systems Lab
 
-A compact legacy publishing-order environment for systems-analysis practice and experimentation with AI-assisted analysis.
+This repo serves as a lab for experimentation with AI-assisted analysis, formed within the context of an imaginary legacy publishing-order environment.
 
 ## About This Lab
-
+### Initial Goal: Can AI assist in systems analysis?
 This repository began as a time-boxed systems-analysis exercise exploring a legacy COBOL / EDI / SQL wholesale order-processing environment.
 
 The initial goal was not to use AI to replace analysis, but to explore how far an analyst and AI could move the starting line in less than two days: learning an unfamiliar technology stack, investigating legacy artifacts, organizing evidence, and producing a first-pass documentation corpus.
@@ -18,7 +18,7 @@ The resulting documentation should not be considered finished analysis. It is a 
 
 > **AI accelerated the work. The analyst remains accountable for the meaning.**
 
-## From AI-Assisted Analysis to AI-Assisted Requirements Elicitation
+### Evolved Goal: Can AI assist in eliciting requirements?
 
 The lab subsequently evolved into a second experiment.
 

@@ -1,0 +1,15 @@
+name: Analyze Legacy System
+description: Document the functionality, business rules, behavioral cases, dependencies, and data flow of a legacy program or domain.
+title: "[Legacy Analysis]: "
+labels:
+  - "legacy-analysis"
+
+body:
+  - type: textarea
+    id: analysis_target
+    attributes:
+      label: What would you like to understand?
+      description: Describe the program, process, business function, or domain you want analyzed.
+      placeholder: "Example: How does order cancellation work?"
+    validations:
+      required: true

@@ -14,8 +14,11 @@ permissions:
 jobs:
   analyze-change:
     if: >
-      github.event_name == 'issues' ||
-      github.event.comment.user.type != 'Bot'
+      contains(github.event.issue.labels.*.name, 'change-analysis') &&
+      (
+        github.event_name == 'issues' ||
+        github.event.comment.user.type != 'Bot'
+      )
 
     runs-on: ubuntu-latest
 

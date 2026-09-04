@@ -206,6 +206,11 @@ A Draft PR may contain open questions.
 
 A Draft PR must not be created while blocking questions remain.
 
+For example, if it is known that acknowledgements must not be sent before
+pricing is established, but the required behavior for pricing failure or hold
+is still undecided, that uncertainty may remain an open question if the known
+behavior can still be specified accurately.
+
 ## Completion
 
 A change request is ready for drafting when:

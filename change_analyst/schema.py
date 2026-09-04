@@ -30,6 +30,7 @@ class ChangeRequest:
 
     assumptions: list[str] = field(default_factory=list)
     open_questions: list[str] = field(default_factory=list)
+    blocking_questions: list[str] = field(default_factory=list)
 
     def unresolved_required_fields(self) -> list[str]:
         unresolved = []
@@ -55,8 +56,13 @@ class ChangeRequest:
             self.desired_behavior,
             self.trigger,
         ]
-
-        return all(
+    
+        core_fields_known = all(
             requirement.state == KnowledgeState.KNOWN
             for requirement in required_fields
+        )
+    
+        return (
+            core_fields_known
+            and not self.blocking_questions
         )

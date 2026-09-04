@@ -13,3 +13,10 @@ body:
       placeholder: "Example: How does order cancellation work?"
     validations:
       required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Why are you investigating this?
+      description: Optional context about the problem, change, or modernization effort may help the analysis.
+      placeholder: "Example: We are considering replacing this process and need to understand current behavior."
